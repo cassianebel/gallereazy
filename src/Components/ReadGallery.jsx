@@ -5,7 +5,6 @@ import { storage, db } from "../firebase";
 
 const ReadGallery = ({ galleryID }) => {
   const [imageList, setImageList] = useState([]);
-  const [metadataList, setMetadataList] = useState([]);
   const [galleryTitle, setGalleryTitle] = useState("");
   const [galleryCaption, setGalleryCaption] = useState("");
   const [galleryUrl, setGalleryUrl] = useState("");
@@ -32,22 +31,27 @@ const ReadGallery = ({ galleryID }) => {
     listAll(listRef)
       .then((res) => {
         res.items.forEach((itemRef) => {
-          getDownloadURL(itemRef).then((url) => {
-            setImageList((prev) => {
-              if (!prev.includes(url)) {
-                return [...prev, url];
-              }
-              return prev;
+          getDownloadURL(itemRef)
+            .then((url) => {
+              getMetadata(itemRef)
+                .then((metadata) => {
+                  setImageList((prev) => [
+                    ...prev,
+                    {
+                      url: url,
+                      description:
+                        metadata?.customMetadata?.description ||
+                        "No description",
+                    },
+                  ]);
+                })
+                .catch((error) => {
+                  console.error("Error fetching metadata:", error);
+                });
+            })
+            .catch((error) => {
+              console.error("Error fetching download URL:", error);
             });
-          });
-          getMetadata(itemRef).then((metadata) => {
-            setMetadataList((prev) => {
-              if (!prev.some((item) => item.fullPath === metadata.fullPath)) {
-                return [...prev, metadata];
-              }
-              return prev;
-            });
-          });
         });
       })
       .catch((error) => {
@@ -59,14 +63,8 @@ const ReadGallery = ({ galleryID }) => {
     <div>
       <h2>{galleryTitle}</h2>
       <p>{galleryCaption}</p>
-      {imageList.map((url, index) => (
-        <img
-          key={url}
-          src={url}
-          alt={
-            metadataList[index]?.customMetadata?.description || "No description"
-          }
-        />
+      {imageList.map((image) => (
+        <img key={image.url} src={image.url} alt={image.description} />
       ))}
     </div>
   );
