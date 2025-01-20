@@ -6,31 +6,22 @@ import { storage } from "./firebase";
 import "./App.css";
 import GoogleSignIn from "./Components/SignInGoogle";
 import CreateGallery from "./Components/CreateGallery";
-import Upload from "./Components/Upload";
+import ReadGallery from "./Components/ReadGallery";
+import GalleryFeed from "./Components/GalleryFeed";
 
 function App() {
-  const [image, setImage] = useState(null);
   const [user] = useAuthState(auth);
-
-  useEffect(() => {
-    const fetchImage = async () => {
-      try {
-        const fluidRef = ref(storage, "images/eclipse.jpg");
-        const imageUrl = await getDownloadURL(fluidRef);
-        setImage(imageUrl);
-      } catch (error) {
-        console.error("Error fetching image:", error);
-      }
-    };
-
-    fetchImage();
-  }, []);
+  const [gallery, setGallery] = useState("OxEjjMc0URVefmod9gqa");
 
   return (
     <>
       <GoogleSignIn />
 
       <CreateGallery user={user} />
+
+      {/* <ReadGallery galleryID={gallery} /> */}
+
+      <GalleryFeed />
     </>
   );
 }
