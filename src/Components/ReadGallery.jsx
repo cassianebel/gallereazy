@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
 import { doc, getDoc } from "firebase/firestore";
 import { storage, db } from "../firebase";
+import { use } from "react";
 
 const ReadGallery = ({ galleryID }) => {
   const [imageList, setImageList] = useState([]);
@@ -30,32 +31,30 @@ const ReadGallery = ({ galleryID }) => {
     const listRef = ref(storage, galleryUrl);
     listAll(listRef)
       .then((res) => {
-        res.items.forEach((itemRef) => {
-          getDownloadURL(itemRef)
-            .then((url) => {
-              getMetadata(itemRef)
-                .then((metadata) => {
-                  setImageList((prev) => [
-                    ...prev,
-                    {
-                      url: url,
-                      description:
-                        metadata?.customMetadata?.description ||
-                        "No description",
-                    },
-                  ]);
-                })
-                .catch((error) => {
-                  console.error("Error fetching metadata:", error);
-                });
-            })
-            .catch((error) => {
-              console.error("Error fetching download URL:", error);
+        const promises = res.items.map((itemRef) => {
+          return getDownloadURL(itemRef).then((url) => {
+            return getMetadata(itemRef).then((metadata) => {
+              return {
+                url: url,
+                description:
+                  metadata?.customMetadata?.description || "No description",
+                order: parseInt(metadata?.customMetadata?.order) || 0,
+              };
             });
+          });
         });
+
+        Promise.all(promises)
+          .then((results) => {
+            results.sort((a, b) => a.order - b.order);
+            setImageList(results);
+          })
+          .catch((error) => {
+            console.error("Error processing items:", error);
+          });
       })
       .catch((error) => {
-        console.error(error);
+        console.error("Error listing items:", error);
       });
   }, [galleryUrl]);
 
@@ -63,9 +62,17 @@ const ReadGallery = ({ galleryID }) => {
     <div>
       <h2>{galleryTitle}</h2>
       <p>{galleryCaption}</p>
-      {imageList.map((image) => (
-        <img key={image.url} src={image.url} alt={image.description} />
-      ))}
+      <div className="flex gap-2">
+        {imageList.map((image) => (
+          <div key={image.order} className={image.order}>
+            <img
+              src={image.url}
+              alt={image.description}
+              className="max-w-full"
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

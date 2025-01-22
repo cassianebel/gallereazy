@@ -16,6 +16,7 @@ const GalleryFeed = () => {
           id: doc.id,
           ...doc.data(),
         }));
+        galleries.sort((a, b) => b.createdAt - a.createdAt);
         setGalleries(galleries);
       } catch (error) {
         console.error("Error fetching decks:", error.message);

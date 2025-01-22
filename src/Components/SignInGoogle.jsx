@@ -27,7 +27,7 @@ function GoogleSignIn() {
         name: authUser.displayName,
         profileImage: authUser.photoURL,
       });
-      // navigate("/decks");
+      navigate("/discover");
     } catch (error) {
       console.error(error.message);
       if (
