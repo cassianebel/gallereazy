@@ -38,6 +38,7 @@ const ReadGallery = ({ galleryID }) => {
                 url: url,
                 description:
                   metadata?.customMetadata?.description || "No description",
+                caption: metadata?.customMetadata?.caption || "",
                 order: parseInt(metadata?.customMetadata?.order) || 0,
               };
             });
@@ -70,6 +71,7 @@ const ReadGallery = ({ galleryID }) => {
               alt={image.description}
               className="max-w-full"
             />
+            <p>{image.caption}</p>
           </div>
         ))}
       </div>

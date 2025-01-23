@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { collection, addDoc } from "firebase/firestore";
 import { db, storage } from "../firebase";
 import { ref, uploadBytes } from "firebase/storage";
@@ -8,14 +8,16 @@ import Button from "./Button";
 
 const CreateGallery = ({ user }) => {
   const [galleryTitle, setGalleryTitle] = useState("");
-  const [caption, setCaption] = useState("");
+  const [galleryCaption, setGalleryCaption] = useState("");
   const [files, setFiles] = useState([
-    { image: "", description: "", order: 0 },
-    { image: "", description: "", order: 1 },
-    { image: "", description: "", order: 2 },
+    { image: "", description: "", caption: "", order: 0 },
+    { image: "", description: "", caption: "", order: 1 },
+    { image: "", description: "", caption: "", order: 2 },
   ]);
   const [uploaded, setUploaded] = useState(false);
   const navigate = useNavigate();
+
+  const fileInputRefs = useRef([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -34,7 +36,7 @@ const CreateGallery = ({ user }) => {
       // Add a new document to the "Galleries" collection
       const galleryRef = await addDoc(collection(db, "Galleries"), {
         title: galleryTitle,
-        caption: caption,
+        caption: galleryCaption,
         userID: user.uid,
         createdAt: new Date(),
       });
@@ -51,6 +53,7 @@ const CreateGallery = ({ user }) => {
             customMetadata: {
               owner: user.uid,
               description: file.description,
+              caption: file.caption,
               order: file.order,
             },
           };
@@ -60,10 +63,20 @@ const CreateGallery = ({ user }) => {
           });
         }
       });
+      // Clear the form fields
+      setGalleryTitle("");
+      setGalleryCaption("");
+      setFiles([
+        { image: "", description: "", caption: "", order: 0 },
+        { image: "", description: "", caption: "", order: 1 },
+        { image: "", description: "", caption: "", order: 2 },
+      ]);
+      fileInputRefs.current.forEach((ref) => {
+        if (ref) ref.value = "";
+      });
       setUploaded(true);
-      // setTimeout(() => {
-      //   navigate("/discover");
-      // }, 2000);
+      // Scroll to the top of the page
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       console.error("Error creating gallery: ", error);
     }
@@ -81,68 +94,90 @@ const CreateGallery = ({ user }) => {
     setFiles(newFiles);
   };
 
+  const handleCaptionChange = (e, index) => {
+    const newFiles = [...files];
+    newFiles[index]["caption"] = e.target.value;
+    setFiles(newFiles);
+  };
+
   const addFile = () => {
     setFiles((prevFiles) => [
       ...prevFiles,
-      { image: "", description: "", order: files.length },
+      { image: "", description: "", caption: "", order: files.length },
     ]);
   };
 
-  if (uploaded) {
-    return (
-      <div className="flex flex-col items-center justify-center">
-        <h2 className="text-4xl mb-4">Gallery Created!</h2>
-        <Button text="Go to Feed" action={() => navigate("/discover")} />
-      </div>
-    );
-  }
-
   return (
-    <div>
-      <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
-        <Input
-          label="title"
-          name="title"
-          type="text"
-          value={galleryTitle}
-          changeHandler={(e) => setGalleryTitle(e.target.value)}
-          required={true}
-        />
-        <label htmlFor="caption" className="block mx-2 uppercase">
-          Caption
-        </label>
-        <textarea
-          name="caption"
-          id="caption"
-          className="block w-full p-2 mb-2 border border-zinc-300 rounded-md "
-          value={caption}
-          onChange={(e) => setCaption(e.target.value)}
-        />
-        {files.map((file, index) => (
-          <div key={index} className="p-2 my-4 bg-zinc-100 rounded-md">
-            <Input
-              type="file"
-              label={`Image ${index + 1}`}
-              name={`image-${index + 1}`}
-              changeHandler={(e) => handleFileChange(e, index)}
-            />
-            <Input
-              type="text"
-              label={`Description for Image ${index + 1}`}
-              name={`description-${index + 1}`}
-              changeHandler={(e) => handleDescriptionChange(e, index)}
-            />
-          </div>
-        ))}
-        <Button
-          text="Add Another Image"
-          label="Add another image"
-          action={addFile}
-          style="primary"
-        />
-        <Button type="submit" text="Create Gallery" />
-      </form>
-    </div>
+    <>
+      {uploaded ? (
+        <div className="flex flex-col items-center justify-center">
+          <h2 className="text-4xl mb-4">Gallery Created!</h2>
+          <Button text="Go to Feed" action={() => navigate("/discover")} />
+        </div>
+      ) : (
+        ""
+      )}
+      <div>
+        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
+          <Input
+            label="title"
+            name="title"
+            type="text"
+            value={galleryTitle}
+            changeHandler={(e) => setGalleryTitle(e.target.value)}
+            required={true}
+          />
+          <label htmlFor="caption" className="block mx-2 uppercase">
+            Gallery Caption
+          </label>
+          <textarea
+            name="galleryCaption"
+            id="galleryCaption"
+            className="block w-full p-2 mb-2 border border-zinc-300 rounded-md "
+            value={galleryCaption}
+            onChange={(e) => setGalleryCaption(e.target.value)}
+          />
+          {files.map((file, index) => (
+            <div key={index} className="p-2 my-4 bg-zinc-100 rounded-md">
+              <label
+                htmlFor={`image-${index + 1}`}
+                className="block mx-2 uppercase"
+              >{`Image ${index + 1}`}</label>
+              <input
+                type="file"
+                name={`image-${index + 1}`}
+                onChange={(e) => handleFileChange(e, index)}
+                ref={(el) => (fileInputRefs.current[index] = el)}
+                className="block w-full p-2 mb-2 border border-zinc-300 rounded-md bg-white"
+              />
+              <Input
+                type="text"
+                label={`Description of Image ${
+                  index + 1
+                } for the visually impared`}
+                name={`description-${index + 1}`}
+                value={file.description}
+                changeHandler={(e) => handleDescriptionChange(e, index)}
+              />
+              <Input
+                type="text"
+                label={`Caption for Image ${index + 1}`}
+                name={`caption-${index + 1}`}
+                value={file.caption}
+                changeHandler={(e) => handleCaptionChange(e, index)}
+              />
+            </div>
+          ))}
+          <Button
+            text="Add Another Image"
+            label="Add another image"
+            action={addFile}
+            style="primary"
+          />
+          <Button type="submit" text="Create Gallery" />
+        </form>
+      </div>
+    </>
   );
 };
 
