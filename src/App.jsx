@@ -2,19 +2,17 @@ import { useState, useEffect } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "./firebase";
-import { ref, getDownloadURL } from "firebase/storage";
-import { storage } from "./firebase";
 import Header from "./Components/Header";
 import SignIn from "./Components/SignIn";
 import SignUp from "./Components/SignUp";
 import CreateGallery from "./Components/CreateGallery";
-import ReadGallery from "./Components/ReadGallery";
 import GalleryFeed from "./Components/GalleryFeed";
 import Profile from "./Components/Profile";
+import GalleryPage from "./Components/GalleryPage";
+import ProfileGalleries from "./Components/ProfileGalleries";
 
 function App() {
   const [user] = useAuthState(auth);
-  const [gallery, setGallery] = useState("OxEjjMc0URVefmod9gqa");
 
   return (
     <>
@@ -39,17 +37,12 @@ function App() {
               user ? <CreateGallery user={user} /> : <Navigate to="/signin" />
             }
           />
-          <Route
-            path="/gallery/:galleryID"
-            element={
-              user ? (
-                <ReadGallery galleryID={gallery} />
-              ) : (
-                <Navigate to="/signin" />
-              )
-            }
-          />
+          <Route path="/gallery/:galleryID" element={<GalleryPage />} />
           <Route path="/profile" element={<Profile user={user} />} />
+          <Route
+            path="/profile/:profileID"
+            element={<ProfileGalleries user={user} />}
+          />
         </Routes>
       </div>
     </>

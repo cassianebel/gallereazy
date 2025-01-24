@@ -10,8 +10,13 @@ const Profile = ({ user }) => {
             Profile
           </h2>
           <p className="text-center">
-            Signed in as <strong>{user.email}</strong>
+            Signed in as <strong>{user.displayName}</strong>
           </p>
+          <img
+            src={user.photoURL}
+            alt={`profile image of ${user.displayName}`}
+            className="mx-auto rounded-full "
+          />
           <SignOut />
         </>
       ) : (
