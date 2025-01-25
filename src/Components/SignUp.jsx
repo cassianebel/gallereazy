@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { auth } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserInDatabase } from "../firestoreUtils";
 import { useNavigate } from "react-router-dom";
 import GoogleSignIn from "./SignInGoogle";
 import Button from "./Button";
@@ -9,6 +10,7 @@ import Input from "./Input";
 import Link from "./Link";
 
 function SignUp() {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -18,6 +20,12 @@ function SignUp() {
     e.preventDefault();
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+      const authUser = auth.currentUser;
+      await createUserInDatabase({
+        email: email,
+        uid: authUser.uid,
+        name: username,
+      });
       navigate("/discover");
     } catch (error) {
       console.log(error.code);
@@ -41,6 +49,14 @@ function SignUp() {
       </h2>
       {error && <Error errorText={error} />}
       <form onSubmit={handleSignUp}>
+        <Input
+          label="Username"
+          name="username"
+          type="text"
+          value={username}
+          changeHandler={(e) => setUsername(e.target.value)}
+          required={true}
+        />
         <Input
           label="Email"
           name="email"

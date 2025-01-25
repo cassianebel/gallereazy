@@ -20,7 +20,7 @@ const ReadGallery = ({ galleryID }) => {
       const gallerySnapshot = await getDoc(galleryRef);
       if (gallerySnapshot.exists()) {
         const galleryData = gallerySnapshot.data();
-        console.log(galleryData);
+        // console.log(galleryData);
         setProfileID(galleryData.userID);
         setGalleryTitle(galleryData.title);
         setGalleryCaption(galleryData.caption);
@@ -36,11 +36,12 @@ const ReadGallery = ({ galleryID }) => {
     const fetchData = async () => {
       const profileRef = doc(db, "Users", profileID);
       const profileSnapshot = await getDoc(profileRef);
+      console.log(profileSnapshot);
       if (profileSnapshot.exists()) {
         const profileData = profileSnapshot.data();
         setProfileName(profileData.name);
         setProfileImage(profileData.profileImage);
-        console.log(profileData);
+        // console.log(profileData);
       } else {
         console.log("Profile not found");
       }

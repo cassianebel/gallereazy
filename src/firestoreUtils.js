@@ -17,7 +17,7 @@ export const createUserInDatabase = async (user) => {
       {
         email: user.email,
         name: user.name,
-        profileImage: user.profileImage,
+        profileImage: user.profileImage || "../alien.png",
       },
       { merge: true }
     );
