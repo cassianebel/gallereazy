@@ -3,6 +3,13 @@ import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
 import { doc, getDoc } from "firebase/firestore";
 import { storage, db } from "../firebase";
 import { NavLink } from "react-router-dom";
+import { FaHeart } from "react-icons/fa6";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Scrollbar } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+// import "swiper/css/pagination";
+import "swiper/css/scrollbar";
 
 const ReadGallery = ({ galleryID }) => {
   const [imageList, setImageList] = useState([]);
@@ -12,9 +19,12 @@ const ReadGallery = ({ galleryID }) => {
   const [profileID, setProfileID] = useState("");
   const [profileName, setProfileName] = useState("");
   const [profileImage, setProfileImage] = useState("");
+  const [isPortrait, setIsPortrait] = useState(
+    window.innerHeight > window.innerWidth
+  );
 
   useEffect(() => {
-    console.log(galleryID);
+    // console.log(galleryID);
     const fetchData = async () => {
       const galleryRef = doc(db, "Galleries", galleryID);
       const gallerySnapshot = await getDoc(galleryRef);
@@ -36,7 +46,7 @@ const ReadGallery = ({ galleryID }) => {
     const fetchData = async () => {
       const profileRef = doc(db, "Users", profileID);
       const profileSnapshot = await getDoc(profileRef);
-      console.log(profileSnapshot);
+      // console.log(profileSnapshot);
       if (profileSnapshot.exists()) {
         const profileData = profileSnapshot.data();
         setProfileName(profileData.name);
@@ -48,6 +58,18 @@ const ReadGallery = ({ galleryID }) => {
     };
     fetchData();
   }, [profileID]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsPortrait(window.innerHeight > window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     const listRef = ref(storage, galleryUrl);
@@ -82,31 +104,58 @@ const ReadGallery = ({ galleryID }) => {
   }, [galleryUrl]);
 
   return (
-    <div>
-      <NavLink to={`/gallery/${galleryID}`}>
-        <h2>{galleryTitle}</h2>
-      </NavLink>
-      <p>{galleryCaption}</p>
-      <img
-        src={profileImage}
-        alt={`Profile image of ${profileName}`}
-        className="rounded-full"
-      />
-      <NavLink to={`/profile/${profileID}`}>
-        <p>{profileName}</p>
-      </NavLink>
-      <div className="flex gap-2">
-        {imageList.map((image) => (
-          <div key={image.order} className={image.order}>
-            <img
-              src={image.url}
-              alt={image.description}
-              className="max-w-full"
-            />
-            <p>{image.caption}</p>
-          </div>
-        ))}
+    <div className="my-20">
+      <div className="w-screen mx-auto ms-[-1rem]">
+        <Swiper
+          spaceBetween={20}
+          slidesPerView={isPortrait ? 1 : 3}
+          onSlideChange={() => console.log("slide change")}
+          onSwiper={(swiper) => console.log(swiper)}
+          modules={[Pagination, Navigation]}
+          navigation
+          pagination={{ clickable: true }}
+          // scrollbar={{ draggable: true }}
+          className="bg-black text-white pt-4"
+        >
+          {imageList.map((image) => (
+            <SwiperSlide
+              key={image.order}
+              className="swiper-slide h-full flex flex-col justify-center items-center"
+            >
+              <img src={image.url} alt={image.description} className="" />
+              <p className="p-2 text-center text-xs">{image.caption}</p>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
+
+      <div className="flex justify-between items-center gap-2">
+        <div>
+          <NavLink
+            to={`/profile/${profileID}`}
+            className="flex items-center gap-2"
+          >
+            <h3 className="">{profileName}</h3>
+          </NavLink>
+        </div>
+        <div>
+          <NavLink to={`/gallery/${galleryID}`}>
+            <h2 className="text-center">{galleryTitle}</h2>
+          </NavLink>
+        </div>
+
+        <div>
+          <FaHeart />
+        </div>
+      </div>
+      {galleryCaption && (
+        <div className="flex items-start gap-2">
+          <NavLink to={`/profile/${profileID}`}>
+            <h4 className="">{profileName}</h4>
+          </NavLink>
+          <p>{galleryCaption}</p>
+        </div>
+      )}
     </div>
   );
 };
