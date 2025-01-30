@@ -17,7 +17,7 @@ function App() {
   return (
     <>
       <Header />
-      <div className="max-w-[1700px] mx-auto p-4">
+      <div className="max-w-[1700px] mx-auto">
         <Routes>
           <Route
             path="/"

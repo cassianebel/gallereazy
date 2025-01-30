@@ -3,19 +3,20 @@ import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
 import { doc, getDoc } from "firebase/firestore";
 import { storage, db } from "../firebase";
 import { NavLink } from "react-router-dom";
-import { FaHeart } from "react-icons/fa6";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Scrollbar } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 // import "swiper/css/pagination";
 import "swiper/css/scrollbar";
+import LikeButton from "./LikeButton";
 
 const ReadGallery = ({ galleryID }) => {
   const [imageList, setImageList] = useState([]);
   const [galleryTitle, setGalleryTitle] = useState("");
   const [galleryCaption, setGalleryCaption] = useState("");
   const [galleryUrl, setGalleryUrl] = useState("");
+  const [likeCount, setLikeCount] = useState(null);
   const [profileID, setProfileID] = useState("");
   const [profileName, setProfileName] = useState("");
   const [profileImage, setProfileImage] = useState("");
@@ -35,6 +36,7 @@ const ReadGallery = ({ galleryID }) => {
         setGalleryTitle(galleryData.title);
         setGalleryCaption(galleryData.caption);
         setGalleryUrl(`images/${galleryData.userID}/${galleryID}`);
+        setLikeCount(galleryData.likeCount);
       } else {
         console.log("Gallery not found");
       }
@@ -105,17 +107,17 @@ const ReadGallery = ({ galleryID }) => {
 
   return (
     <div className="my-20">
-      <div className="w-screen mx-auto ms-[-1rem]">
+      <div className="w-screen max-w-[1700px] mb-2 mx-auto">
         <Swiper
           spaceBetween={20}
           slidesPerView={isPortrait ? 1 : 3}
           onSlideChange={() => console.log("slide change")}
           onSwiper={(swiper) => console.log(swiper)}
-          modules={[Pagination, Navigation]}
+          modules={[Scrollbar, Navigation]}
           navigation
-          pagination={{ clickable: true }}
-          // scrollbar={{ draggable: true }}
-          className="bg-black text-white pt-4"
+          // pagination={{ clickable: true }}
+          scrollbar={{ draggable: true }}
+          className="pt-4 pb-4"
         >
           {imageList.map((image) => (
             <SwiperSlide
@@ -129,33 +131,35 @@ const ReadGallery = ({ galleryID }) => {
         </Swiper>
       </div>
 
-      <div className="flex justify-between items-center gap-2">
-        <div>
-          <NavLink
-            to={`/profile/${profileID}`}
-            className="flex items-center gap-2"
-          >
-            <h3 className="">{profileName}</h3>
-          </NavLink>
-        </div>
+      <div className="flex justify-between items-center gap-2 mx-3">
         <div>
           <NavLink to={`/gallery/${galleryID}`}>
-            <h2 className="text-center">{galleryTitle}</h2>
+            <h2 className="">
+              <span className="font-bold">{galleryTitle}</span> - {profileName}
+            </h2>
           </NavLink>
         </div>
 
         <div>
-          <FaHeart />
+          {likeCount !== null && (
+            <LikeButton galleryId={galleryID} initialLikeCount={likeCount} />
+          )}
         </div>
       </div>
-      {galleryCaption && (
-        <div className="flex items-start gap-2">
-          <NavLink to={`/profile/${profileID}`}>
-            <h4 className="">{profileName}</h4>
-          </NavLink>
-          <p>{galleryCaption}</p>
-        </div>
-      )}
+
+      <div className=" mx-3">
+        {galleryCaption && (
+          <>
+            <NavLink to={`/profile/${profileID}`}>
+              <h4 className="inline">{profileName}</h4>
+            </NavLink>
+            <p className="inline"> - {galleryCaption}</p>
+          </>
+        )}
+        <form>
+          <input type="text" placeholder="Add a comment..." />
+        </form>
+      </div>
     </div>
   );
 };
