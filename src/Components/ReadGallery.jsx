@@ -157,7 +157,11 @@ const ReadGallery = ({ galleryID }) => {
           </>
         )}
         <form>
-          <input type="text" placeholder="Add a comment..." />
+          <input
+            type="text"
+            placeholder="Add a comment..."
+            className="block w-full p-2 mb-2 bg-zinc-100 bg-opacity-0 placeholder:text-zinc-500"
+          />
         </form>
       </div>
     </div>

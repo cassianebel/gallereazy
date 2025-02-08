@@ -28,42 +28,6 @@ export const createUserInDatabase = async (user) => {
   }
 };
 
-export const fetchPublicGalleries = async () => {
-  try {
-    const galleriesCollectionRef = collection(db, "Galleries");
-    const galleriesQuery = query(
-      galleriesCollectionRef,
-      where("public", "==", true)
-    );
-    const querySnapshot = await getDocs(galleriesQuery);
-    const galleries = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    return galleries;
-  } catch (error) {
-    console.error("Error fetching galleries:", error.message);
-  }
-};
-
-export const fetchPrivateGalleries = async (userID) => {
-  try {
-    const galleriesCollectionRef = collection(db, "Galleries");
-    const galleriesQuery = query(
-      galleriesCollectionRef,
-      where("userID", "==", userID)
-    );
-    const querySnapshot = await getDocs(galleriesQuery);
-    const galleries = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    return galleries;
-  } catch (error) {
-    console.error("Error fetching galleries:", error.message);
-  }
-};
-
 export const referenceAnImage = async (userID) => {
   const storageRef = ref(storage);
   const fluidRef = ref(storage, "fluid-small.jpg");

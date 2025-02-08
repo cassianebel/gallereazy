@@ -22,7 +22,6 @@ import { initializeApp } from "firebase-admin/app";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import * as functions from "firebase-functions/v1";
 
-// Initialize Firebase Admin SDK
 initializeApp();
 const db = getFirestore();
 

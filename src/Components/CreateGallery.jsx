@@ -120,35 +120,38 @@ const CreateGallery = ({ user }) => {
       <div>
         <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
           <Input
-            label="title"
+            label="Title"
             name="title"
             type="text"
             value={galleryTitle}
             changeHandler={(e) => setGalleryTitle(e.target.value)}
             required={true}
           />
-          <label htmlFor="caption" className="block mx-2 uppercase">
+          <label htmlFor="caption" className="block mx-2">
             Gallery Caption
           </label>
           <textarea
             name="galleryCaption"
             id="galleryCaption"
-            className="block w-full p-2 mb-2 border border-zinc-300 rounded-md "
+            className="block w-full p-2 mb-2 border border-zinc-300 dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-300 rounded-md "
             value={galleryCaption}
             onChange={(e) => setGalleryCaption(e.target.value)}
           />
           {files.map((file, index) => (
-            <div key={index} className="p-2 my-4 bg-zinc-100 rounded-md">
+            <div
+              key={index}
+              className="p-4 my-6 bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-md"
+            >
               <label
                 htmlFor={`image-${index + 1}`}
-                className="block mx-2 uppercase"
+                className="block mx-2"
               >{`Image ${index + 1}`}</label>
               <input
                 type="file"
                 name={`image-${index + 1}`}
                 onChange={(e) => handleFileChange(e, index)}
                 ref={(el) => (fileInputRefs.current[index] = el)}
-                className="block w-full p-2 mb-2 border border-zinc-300 rounded-md bg-white"
+                className="block w-full p-2 mb-2 border border-zinc-300 rounded-md bg-white dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-300"
               />
               <Input
                 type="text"
@@ -172,9 +175,9 @@ const CreateGallery = ({ user }) => {
             text="Add Another Image"
             label="Add another image"
             action={addFile}
-            style="primary"
+            style="secondary"
           />
-          <Button type="submit" text="Create Gallery" />
+          <Button type="submit" style="primary" text="Create Gallery" />
         </form>
       </div>
     </>
