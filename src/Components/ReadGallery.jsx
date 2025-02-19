@@ -105,6 +105,10 @@ const ReadGallery = ({ galleryID }) => {
       });
   }, [galleryUrl]);
 
+  const addComment = async (e) => {
+    e.preventDefault();
+  };
+
   return (
     <div className="my-20">
       <div className="w-screen max-w-[1700px] mb-2 mx-auto">
@@ -156,7 +160,7 @@ const ReadGallery = ({ galleryID }) => {
             <p className="inline"> - {galleryCaption}</p>
           </>
         )}
-        <form>
+        <form onSubmit={addComment}>
           <input
             type="text"
             placeholder="Add a comment..."
