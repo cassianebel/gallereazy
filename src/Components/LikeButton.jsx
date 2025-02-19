@@ -31,12 +31,10 @@ const LikeButton = ({ galleryId, initialLikeCount }) => {
     }
 
     if (liked) {
-      console.log(`Unliking gallery: ${galleryId}, deleting like doc`);
-      await deleteDoc(likeDocRef); // Ensure this is executing
+      await deleteDoc(likeDocRef);
       setLiked(false);
       setLikeCount((prev) => prev - 1);
     } else {
-      console.log(`Liking gallery: ${galleryId}, creating like doc`);
       await setDoc(likeDocRef, { userId: user.uid, galleryId });
       setLiked(true);
       setLikeCount((prev) => prev + 1);
@@ -47,10 +45,12 @@ const LikeButton = ({ galleryId, initialLikeCount }) => {
     <button
       onClick={toggleLike}
       className={`p-2 rounded flex justify-center items-center gap-2 ${
-        liked ? "text-rose-700" : "text-black"
+        liked ? "text-rose-700" : "text-black dark:text-white"
       }`}
     >
-      <span className="text-black">{likeCount > 0 && likeCount}</span>
+      <span className="text-black dark:text-white">
+        {likeCount > 0 && likeCount}
+      </span>
       <FaHeart className="text-2xl" />
     </button>
   );

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ref, listAll, getDownloadURL, getMetadata } from "firebase/storage";
 import { doc, getDoc } from "firebase/firestore";
-import { storage, db } from "../firebase";
+import { storage, db, auth } from "../firebase";
 import { NavLink } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Scrollbar } from "swiper/modules";
@@ -10,6 +10,8 @@ import "swiper/css/navigation";
 // import "swiper/css/pagination";
 import "swiper/css/scrollbar";
 import LikeButton from "./LikeButton";
+import CommentForm from "./CommentForm";
+import CommentList from "./CommentList";
 
 const ReadGallery = ({ galleryID }) => {
   const [imageList, setImageList] = useState([]);
@@ -23,6 +25,8 @@ const ReadGallery = ({ galleryID }) => {
   const [isPortrait, setIsPortrait] = useState(
     window.innerHeight > window.innerWidth
   );
+
+  const user = auth.currentUser;
 
   useEffect(() => {
     // console.log(galleryID);
@@ -105,10 +109,6 @@ const ReadGallery = ({ galleryID }) => {
       });
   }, [galleryUrl]);
 
-  const addComment = async (e) => {
-    e.preventDefault();
-  };
-
   return (
     <div className="my-20">
       <div className="w-screen max-w-[1700px] mb-2 mx-auto">
@@ -160,13 +160,8 @@ const ReadGallery = ({ galleryID }) => {
             <p className="inline"> - {galleryCaption}</p>
           </>
         )}
-        <form onSubmit={addComment}>
-          <input
-            type="text"
-            placeholder="Add a comment..."
-            className="block w-full p-2 mb-2 bg-zinc-100 bg-opacity-0 placeholder:text-zinc-500"
-          />
-        </form>
+        <CommentList galleryId={galleryID} />
+        <CommentForm galleryId={galleryID} user={user} />
       </div>
     </div>
   );
